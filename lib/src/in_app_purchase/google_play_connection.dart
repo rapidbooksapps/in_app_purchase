@@ -52,6 +52,11 @@ class GooglePlayConnection
   }
 
   @override
+  Future<void> reconnect() {
+    _readyFuture = _connect();
+  }
+
+  @override
   Future<bool> buyNonConsumable({@required PurchaseParam purchaseParam}) async {
     BillingResultWrapper billingResultWrapper =
         await billingClient.launchBillingFlow(

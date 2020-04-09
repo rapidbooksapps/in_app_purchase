@@ -44,6 +44,11 @@ class AppStoreConnection implements InAppPurchaseConnection {
   Future<bool> isAvailable() => SKPaymentQueueWrapper.canMakePayments();
 
   @override
+  Future<void> reconnect() {
+
+  }
+
+  @override
   Future<bool> buyNonConsumable({@required PurchaseParam purchaseParam}) async {
     await _skPaymentQueueWrapper.addPayment(SKPaymentWrapper(
         productIdentifier: purchaseParam.productDetails.id,

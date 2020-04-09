@@ -69,6 +69,8 @@ abstract class InAppPurchaseConnection {
   /// Returns true if the payment platform is ready and available.
   Future<bool> isAvailable();
 
+  Future<void> reconnect();
+
   /// Enable the [InAppPurchaseConnection] to handle pending purchases.
   ///
   /// Android Only: This method is required to be called when initialize the application.
@@ -81,6 +83,7 @@ abstract class InAppPurchaseConnection {
   static void enablePendingPurchases() {
     _enablePendingPurchase = true;
   }
+
 
   /// Query product details for the given set of IDs.
   ///
