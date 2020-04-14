@@ -141,6 +141,13 @@ class _MyAppState extends State<MyApp> {
             _buildConnectionCheckTile(),
             _buildProductList(),
             _buildConsumableBox(),
+            FlatButton(
+              onPressed: ()async {
+                int r = await _connection.fetchSubscriptionHistory();
+                debugPrint("从服务器获取历史 ${r}");
+              },
+              child: Text("从服务器获取历史"),
+            )
           ],
         ),
       );

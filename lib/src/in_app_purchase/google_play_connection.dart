@@ -161,6 +161,12 @@ class GooglePlayConnection
   }
 
   @override
+  Future<int> fetchSubscriptionHistory() async {
+    PurchasesHistoryResult purchasesHistoryResult = await billingClient.queryPurchaseHistory(SkuType.subs);
+    return purchasesHistoryResult.billingResult.responseCode.index;
+  }
+
+  @override
   Future<PurchaseVerificationData> refreshPurchaseVerificationData() async {
     throw UnsupportedError(
         'The method <refreshPurchaseVerificationData> only works on iOS.');

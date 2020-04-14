@@ -127,6 +127,11 @@ class AppStoreConnection implements InAppPurchaseConnection {
   }
 
   @override
+  Future<int> fetchSubscriptionHistory() {
+    throw UnsupportedError(
+        'The method <fetchSubscriptionHistory> only works on Android.');  }
+
+  @override
   Future<PurchaseVerificationData> refreshPurchaseVerificationData() async {
     await SKRequestMaker().startRefreshReceiptRequest();
     String receipt = await SKReceiptManager.retrieveReceiptData();
