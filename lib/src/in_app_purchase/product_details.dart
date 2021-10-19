@@ -12,6 +12,7 @@ import 'in_app_purchase_connection.dart';
 /// This class unifies the BillingClient's [SkuDetailsWrapper] and StoreKit's [SKProductWrapper]. You can use the common attributes in
 /// This class for simple operations. If you would like to see the detailed representation of the product, instead,  use [skuDetails] on Android and [skProduct] on iOS.
 class ProductDetails {
+  /// Creates a new product details object with the provided details.
   ProductDetails(
       {@required this.id,
       @required this.title,
@@ -35,12 +36,12 @@ class ProductDetails {
 
   /// Points back to the `StoreKits`'s [SKProductWrapper] object that generated this [ProductDetails] object.
   ///
-  /// This is null on Android.
+  /// This is `null` on Android.
   final SKProductWrapper skProduct;
 
   /// Points back to the `BillingClient1`'s [SkuDetailsWrapper] object that generated this [ProductDetails] object.
   ///
-  /// This is null on iOS.
+  /// This is `null` on iOS.
   final SkuDetailsWrapper skuDetail;
 
   /// Generate a [ProductDetails] object based on an iOS [SKProductWrapper] object.
@@ -66,6 +67,7 @@ class ProductDetails {
 ///
 /// A list of [ProductDetails] can be obtained from the this response.
 class ProductDetailsResponse {
+  /// Creates a new [ProductDetailsResponse] with the provided response details.
   ProductDetailsResponse(
       {@required this.productDetails, @required this.notFoundIDs, this.error});
 
@@ -79,6 +81,8 @@ class ProductDetailsResponse {
   final List<String> notFoundIDs;
 
   /// A caught platform exception thrown while querying the purchases.
+  ///
+  /// The value is `null` if there is no error.
   ///
   /// It's possible for this to be null but for there still to be notFoundIds in cases where the request itself was a success but the
   /// requested IDs could not be found.

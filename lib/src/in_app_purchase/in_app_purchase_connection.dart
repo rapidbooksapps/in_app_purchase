@@ -7,9 +7,9 @@ import 'dart:io';
 import 'app_store_connection.dart';
 import 'google_play_connection.dart';
 import 'product_details.dart';
-import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/billing_client_wrappers.dart';
 import './purchase_details.dart';
+import 'package:flutter/foundation.dart';
 
 export 'package:in_app_purchase/billing_client_wrappers.dart';
 
@@ -69,11 +69,9 @@ abstract class InAppPurchaseConnection {
   /// Returns true if the payment platform is ready and available.
   Future<bool> isAvailable();
 
-  Future<void> reconnect();
-
   /// Enable the [InAppPurchaseConnection] to handle pending purchases.
   ///
-  /// Android Only: This method is required to be called when initialize the application.
+  /// This method is required to be called when initialize the application.
   /// It is to acknowledge your application has been updated to support pending purchases.
   /// See [Support pending transactions](https://developer.android.com/google/play/billing/billing_library_overview#pending)
   /// for more details.
@@ -83,7 +81,6 @@ abstract class InAppPurchaseConnection {
   static void enablePendingPurchases() {
     _enablePendingPurchase = true;
   }
-
 
   /// Query product details for the given set of IDs.
   ///
@@ -112,8 +109,7 @@ abstract class InAppPurchaseConnection {
   /// [PurchaseDetails.status] and update your UI accordingly. When the
   /// [PurchaseDetails.status] is [PurchaseStatus.purchased] or
   /// [PurchaseStatus.error], you should deliver the content or handle the
-  /// error. On iOS, you also need to call [completePurchase] to finish the
-  /// purchasing process.
+  /// error, then call [completePurchase] to finish the purchasing process.
   ///
   /// This method does return whether or not the purchase request was initially
   /// sent successfully.
@@ -209,10 +205,7 @@ abstract class InAppPurchaseConnection {
   ///
   /// Warning! Failure to call this method and get a successful response within 3 days of the purchase will result a refund on Android.
   /// The [consumePurchase] acts as an implicit [completePurchase] on Android.
-  ///
-  /// The optional parameter `developerPayload` only works on Android.
-  Future<BillingResultWrapper> completePurchase(PurchaseDetails purchase,
-      {String developerPayload});
+  Future<BillingResultWrapper> completePurchase(PurchaseDetails purchase);
 
   /// (Play only) Mark that the user has consumed a product.
   ///
@@ -220,16 +213,14 @@ abstract class InAppPurchaseConnection {
   /// delivered. The user won't be able to buy the same product again until the
   /// purchase of the product is consumed.
   ///
-  /// The `developerPayload` can be specified to be associated with this consumption.
-  ///
   /// This throws an [UnsupportedError] on iOS.
-  Future<BillingResultWrapper> consumePurchase(PurchaseDetails purchase,
-      {String developerPayload});
+  Future<BillingResultWrapper> consumePurchase(PurchaseDetails purchase);
 
   /// Query all previous purchases.
   ///
   /// The `applicationUserName` should match whatever was sent in the initial
-  /// `PurchaseParam`, if anything.
+  /// `PurchaseParam`, if anything. If no `applicationUserName` was specified in the initial
+  /// `PurchaseParam`, use `null`.
   ///
   /// This does not return consumed products. If you want to restore unused
   /// consumable products, you need to persist consumable product information
@@ -242,9 +233,9 @@ abstract class InAppPurchaseConnection {
   Future<QueryPurchaseDetailsResponse> queryPastPurchases(
       {String applicationUserName});
 
-  Future<int> fetchSubscriptionHistory();
-
   /// (App Store only) retry loading purchase data after an initial failure.
+  ///
+  /// If no results, a `null` value is returned.
   ///
   /// Throws an [UnsupportedError] on Android.
   Future<PurchaseVerificationData> refreshPurchaseVerificationData();
@@ -275,7 +266,13 @@ abstract class InAppPurchaseConnection {
 }
 
 /// Which platform the request is on.
-enum IAPSource { GooglePlay, AppStore }
+enum IAPSource {
+  /// Google's Play Store.
+  GooglePlay,
+
+  /// Apple's App Store.
+  AppStore
+}
 
 /// Captures an error from the underlying purchase platform.
 ///
@@ -285,6 +282,7 @@ enum IAPSource { GooglePlay, AppStore }
 /// * [ProductDetailsResponse] for error when querying product details.
 /// * [PurchaseDetails] for error happened in purchase.
 class IAPError {
+  /// Creates a new IAP error object with the given error details.
   IAPError(
       {@required this.source,
       @required this.code,
@@ -297,7 +295,7 @@ class IAPError {
   /// The error code.
   final String code;
 
-  /// A human-readable error message, possibly null.
+  /// A human-readable error message.
   final String message;
 
   /// Error details, possibly null.

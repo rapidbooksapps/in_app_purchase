@@ -10,9 +10,15 @@ import 'package:in_app_purchase/src/store_kit_wrappers/sk_payment_transaction_wr
 import './in_app_purchase_connection.dart';
 import './product_details.dart';
 
+/// [IAPError.code] code for failed purchases.
 final String kPurchaseErrorCode = 'purchase_error';
+
+/// [IAPError.code] code used when a query for previouys transaction has failed.
 final String kRestoredPurchaseErrorCode = 'restore_transactions_failed';
+
+/// [IAPError.code] code used when a consuming a purchased item fails.
 final String kConsumptionFailedErrorCode = 'consume_purchase_failed';
+
 final String _kPlatformIOS = 'ios';
 final String _kPlatformAndroid = 'android';
 
@@ -51,12 +57,16 @@ class PurchaseVerificationData {
   /// Indicates the source of the purchase.
   final IAPSource source;
 
+  /// Creates a [PurchaseVerificationData] object with the provided information.
   PurchaseVerificationData(
       {@required this.localVerificationData,
       @required this.serverVerificationData,
       @required this.source});
 }
 
+/// Status for a [PurchaseDetails].
+///
+/// This is the type for [PurchaseDetails.status].
 enum PurchaseStatus {
   /// The purchase process is pending.
   ///
@@ -76,10 +86,13 @@ enum PurchaseStatus {
 
 /// The parameter object for generating a purchase.
 class PurchaseParam {
+  /// Creates a new purchase parameter object with the given data.
   PurchaseParam(
       {@required this.productDetails,
       this.applicationUserName,
-      this.sandboxTesting});
+      this.sandboxTesting = false,
+      this.simulatesAskToBuyInSandbox = false,
+      this.changeSubscriptionParam});
 
   /// The product to create payment for.
   ///
@@ -94,8 +107,50 @@ class PurchaseParam {
   /// For example, you can use a one-way hash of the user’s account name on your server.
   final String applicationUserName;
 
-  /// The 'sandboxTesting' is only available on iOS, set it to `true` for testing in AppStore's sandbox environment. The default value is `false`.
+  /// @deprecated Use [simulatesAskToBuyInSandbox] instead.
+  ///
+  /// Only available on iOS, set it to `true` to produce an "ask to buy" flow for this payment in the sandbox.
+  ///
+  /// See also [SKPaymentWrapper.simulatesAskToBuyInSandbox].
+  @deprecated
   final bool sandboxTesting;
+
+  /// Only available on iOS, set it to `true` to produce an "ask to buy" flow for this payment in the sandbox.
+  ///
+  /// See also [SKPaymentWrapper.simulatesAskToBuyInSandbox].
+  final bool simulatesAskToBuyInSandbox;
+
+  /// The 'changeSubscriptionParam' is only available on Android, for upgrading or
+  /// downgrading an existing subscription.
+  ///
+  /// This does not require on iOS since Apple provides a way to group related subscriptions
+  /// together in iTunesConnect. So when a subscription upgrade or downgrade is requested,
+  /// Apple finds the old subscription details from the group and handle it automatically.
+  final ChangeSubscriptionParam changeSubscriptionParam;
+}
+
+/// This parameter object which is only applicable on Android for upgrading or downgrading an existing subscription.
+///
+/// This does not require on iOS since iTunesConnect provides a subscription grouping mechanism.
+/// Each subscription you offer must be assigned to a subscription group.
+/// So the developers can group related subscriptions together to prevent users from
+/// accidentally purchasing multiple subscriptions.
+///
+/// Please refer to the 'Creating a Subscription Group' sections of [Apple's subscription guide](https://developer.apple.com/app-store/subscriptions/)
+class ChangeSubscriptionParam {
+  /// Creates a new change subscription param object with given data
+  ChangeSubscriptionParam(
+      {@required this.oldPurchaseDetails, this.prorationMode});
+
+  /// The purchase object of the existing subscription that the user needs to
+  /// upgrade/downgrade from.
+  final PurchaseDetails oldPurchaseDetails;
+
+  /// The proration mode.
+  ///
+  /// This is an optional parameter that indicates how to handle the existing
+  /// subscription when the new subscription comes into effect.
+  final ProrationMode prorationMode;
 }
 
 /// Represents the transaction details of a purchase.
@@ -104,6 +159,8 @@ class PurchaseParam {
 /// This class for simple operations. If you would like to see the detailed representation of the product, instead,  use [PurchaseWrapper] on Android and [SKPaymentTransactionWrapper] on iOS.
 class PurchaseDetails {
   /// A unique identifier of the purchase.
+  ///
+  /// The `value` is null on iOS if it is not a successful purchase.
   final String purchaseID;
 
   /// The product identifier of the purchase.
@@ -115,14 +172,15 @@ class PurchaseDetails {
   /// details on how to verify purchase use this data. You should never use any
   /// purchase data until verified.
   ///
-  /// On iOS, this may be null. Call
-  /// [InAppPurchaseConnection.refreshPurchaseVerificationData] to get a new
+  /// On iOS, [InAppPurchaseConnection.refreshPurchaseVerificationData] can be used to get a new
   /// [PurchaseVerificationData] object for further validation.
   final PurchaseVerificationData verificationData;
 
   /// The timestamp of the transaction.
   ///
   /// Milliseconds since epoch.
+  ///
+  /// The value is `null` if [status] is not [PurchaseStatus.purchased].
   final String transactionDate;
 
   /// The status that this [PurchaseDetails] is currently on.
@@ -144,17 +202,19 @@ class PurchaseDetails {
 
   PurchaseStatus _status;
 
-  /// The error is only available when [status] is [PurchaseStatus.error].
+  /// The error details when the [status] is [PurchaseStatus.error].
+  ///
+  /// The value is `null` if [status] is not [PurchaseStatus.error].
   IAPError error;
 
   /// Points back to the `StoreKits`'s [SKPaymentTransactionWrapper] object that generated this [PurchaseDetails] object.
   ///
-  /// This is null on Android.
+  /// This is `null` on Android.
   final SKPaymentTransactionWrapper skPaymentTransaction;
 
   /// Points back to the `BillingClient`'s [PurchaseWrapper] object that generated this [PurchaseDetails] object.
   ///
-  /// This is null on iOS.
+  /// This is `null` on iOS.
   final PurchaseWrapper billingClientPurchase;
 
   /// The developer has to call [InAppPurchaseConnection.completePurchase] if the value is `true`
@@ -170,8 +230,9 @@ class PurchaseDetails {
   // The value is either '_kPlatformIOS' or '_kPlatformAndroid'.
   String _platform;
 
+  /// Creates a new PurchaseDetails object with the provided data.
   PurchaseDetails({
-    @required this.purchaseID,
+    this.purchaseID,
     @required this.productID,
     @required this.verificationData,
     @required this.transactionDate,
@@ -196,6 +257,14 @@ class PurchaseDetails {
         _platform = _kPlatformIOS {
     status = SKTransactionStatusConverter()
         .toPurchaseStatus(transaction.transactionState);
+    if (status == PurchaseStatus.error) {
+      error = IAPError(
+        source: IAPSource.AppStore,
+        code: kPurchaseErrorCode,
+        message: transaction.error?.domain ?? '',
+        details: transaction.error?.userInfo,
+      );
+    }
   }
 
   /// Generate a [PurchaseDetails] object based on an Android [Purchase] object.
@@ -211,6 +280,13 @@ class PurchaseDetails {
         this.billingClientPurchase = purchase,
         _platform = _kPlatformAndroid {
     status = PurchaseStateConverter().toPurchaseStatus(purchase.purchaseState);
+    if (status == PurchaseStatus.error) {
+      error = IAPError(
+        source: IAPSource.GooglePlay,
+        code: kPurchaseErrorCode,
+        message: '',
+      );
+    }
   }
 }
 
@@ -218,6 +294,7 @@ class PurchaseDetails {
 ///
 /// An instance of this class is returned in [InAppPurchaseConnection.queryPastPurchases].
 class QueryPurchaseDetailsResponse {
+  /// Creates a new [QueryPurchaseDetailsResponse] object with the provider information.
   QueryPurchaseDetailsResponse({@required this.pastPurchases, this.error});
 
   /// A list of successfully fetched past purchases.
@@ -229,6 +306,6 @@ class QueryPurchaseDetailsResponse {
 
   /// The error when fetching past purchases.
   ///
-  /// If the fetch is successful, the value is null.
+  /// If the fetch is successful, the value is `null`.
   final IAPError error;
 }
