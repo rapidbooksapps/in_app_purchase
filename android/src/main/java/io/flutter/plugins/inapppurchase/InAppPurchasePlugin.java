@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.inapppurchase;
+package android.src.main.java.io.flutter.plugins.inapppurchase;
 
 import android.app.Activity;
 import android.app.Application;
@@ -14,7 +14,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /** Wraps a {@link BillingClient} instance and responds to Dart calls for it. */
 public class InAppPurchasePlugin implements FlutterPlugin, ActivityAware {
@@ -47,7 +46,8 @@ public class InAppPurchasePlugin implements FlutterPlugin, ActivityAware {
   private MethodCallHandlerImpl methodCallHandler;
 
   /** Plugin registration. */
-  public static void registerWith(Registrar registrar) {
+  @SuppressWarnings("deprecation")
+  public static void registerWith(io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
     InAppPurchasePlugin plugin = new InAppPurchasePlugin();
     plugin.setupMethodChannel(registrar.activity(), registrar.messenger(), registrar.context());
     ((Application) registrar.context().getApplicationContext())

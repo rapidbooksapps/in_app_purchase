@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package io.flutter.plugins.inapppurchase;
+package android.src.main.java.io.flutter.plugins.inapppurchase;
 
 import androidx.annotation.Nullable;
 import com.android.billingclient.api.BillingResult;
@@ -31,7 +31,6 @@ import java.util.List;
     info.put("priceCurrencyCode", detail.getPriceCurrencyCode());
     info.put("sku", detail.getSku());
     info.put("type", detail.getType());
-    info.put("isRewarded", detail.isRewarded());
     info.put("subscriptionPeriod", detail.getSubscriptionPeriod());
     info.put("originalPrice", detail.getOriginalPrice());
     info.put("originalPriceAmountMicros", detail.getOriginalPriceAmountMicros());
