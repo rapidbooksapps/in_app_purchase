@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import '../../billing_client_wrappers.dart';
 import 'app_store_connection.dart';
 import 'google_play_connection.dart';
 import 'product_details.dart';
@@ -233,6 +234,7 @@ abstract class InAppPurchaseConnection {
   Future<QueryPurchaseDetailsResponse> queryPastPurchases(
       {String applicationUserName});
 
+  Future<PurchasesHistoryResult> queryPurchaseHistory();
   /// (App Store only) retry loading purchase data after an initial failure.
   ///
   /// If no results, a `null` value is returned.

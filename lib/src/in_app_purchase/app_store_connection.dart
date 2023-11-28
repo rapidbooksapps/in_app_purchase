@@ -201,6 +201,11 @@ class AppStoreConnection implements InAppPurchaseConnection {
     );
     return productDetailsResponse;
   }
+
+  @override
+  Future<PurchasesHistoryResult> queryPurchaseHistory() {
+
+  }
 }
 
 class _TransactionObserver implements SKTransactionObserverWrapper {

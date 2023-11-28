@@ -306,4 +306,9 @@ class GooglePlayConnection
 
     return purchaseDetails;
   }
+
+  @override
+  Future<PurchasesHistoryResult> queryPurchaseHistory() async {
+    return await billingClient.queryPurchaseHistory(SkuType.subs);
+  }
 }
