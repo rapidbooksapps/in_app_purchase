@@ -61,7 +61,7 @@ class ProrationModeConverter implements JsonConverter<ProrationMode, int> {
   @override
   ProrationMode fromJson(int json) {
     if (json == null) {
-      return ProrationMode.unknownSubscriptionUpgradeDowngradePolicy;
+      return ProrationMode.unknowReplacementMode;
     }
     return _$enumDecode<ProrationMode, dynamic>(
         _$ProrationModeEnumMap.cast<ProrationMode, dynamic>(), json);

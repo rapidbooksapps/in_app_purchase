@@ -202,7 +202,7 @@ class BillingClient {
       'oldSku': oldSku,
       'purchaseToken': purchaseToken,
       'prorationMode': ProrationModeConverter().toJson(prorationMode ??
-          ProrationMode.unknownSubscriptionUpgradeDowngradePolicy)
+          ProrationMode.unknowReplacementMode)
     };
     return BillingResultWrapper.fromJson(
         (await channel.invokeMapMethod<String, dynamic>(
@@ -421,7 +421,7 @@ enum ProrationMode {
 
   /// Unknown upgrade or downgrade policy.
   @JsonValue(0)
-  unknownSubscriptionUpgradeDowngradePolicy,
+  unknowReplacementMode,
 
   /// Replacement takes effect immediately, and the remaining time will be prorated and credited to the user.
   ///
@@ -442,7 +442,9 @@ enum ProrationMode {
   @JsonValue(3)
   immediateWithoutProration,
 
-  /// Replacement takes effect when the old plan expires, and the new price will be charged at the same time.
-  @JsonValue(4)
+  @JsonValue(5)
+  chargeFullPrice,
+  
+  @JsonValue(6)
   deferred,
 }

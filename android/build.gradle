@@ -35,7 +35,10 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:1.0.0'
-    implementation 'com.android.billingclient:billing:5.0.0'
+    implementation ('com.android.billingclient:billing:7.0.0') {
+        exclude group: 'androidx.activity', module: 'activity'
+        exclude group: 'androidx.arch.core', module: 'core-common'
+    }
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.6.0'
     androidTestImplementation 'androidx.test:runner:1.1.1'

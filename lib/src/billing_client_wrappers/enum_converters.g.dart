@@ -77,9 +77,10 @@ const _$PurchaseStateWrapperEnumMap = {
 };
 
 const _$ProrationModeEnumMap = {
-  ProrationMode.unknownSubscriptionUpgradeDowngradePolicy: 0,
+  ProrationMode.unknowReplacementMode: 0,
   ProrationMode.immediateWithTimeProration: 1,
   ProrationMode.immediateAndChargeProratedPrice: 2,
   ProrationMode.immediateWithoutProration: 3,
-  ProrationMode.deferred: 4,
+  ProrationMode.chargeFullPrice: 5,
+  ProrationMode.deferred: 6,
 };

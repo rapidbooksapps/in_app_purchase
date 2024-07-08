@@ -22,7 +22,8 @@ import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
-import com.android.billingclient.api.BillingFlowParams.ProrationMode;
+//import com.android.billingclient.api.BillingFlowParams.ProrationMode;
+import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams.ReplacementMode;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
@@ -148,9 +149,12 @@ class MethodCallHandlerImpl
                         (String) call.argument("obfuscatedProfileId"),
                         (String) call.argument("oldSku"),
                         (String) call.argument("purchaseToken"),
+//                        call.hasArgument("prorationMode")
+//                                ? (int) call.argument("prorationMode")
+//                                : ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY,
                         call.hasArgument("prorationMode")
                                 ? (int) call.argument("prorationMode")
-                                : ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY,
+                                : ReplacementMode.UNKNOWN_REPLACEMENT_MODE,
                         result);
                 break;
             case InAppPurchasePlugin.MethodNames.QUERY_PURCHASES:
@@ -239,7 +243,8 @@ class MethodCallHandlerImpl
         }
 
         if (oldSku == null
-                && prorationMode != ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY) {
+                && prorationMode != ReplacementMode.UNKNOWN_REPLACEMENT_MODE) {
+//                && prorationMode != ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY) {
             result.error(
                     "IN_APP_PURCHASE_REQUIRE_OLD_SKU",
                     "launchBillingFlow failed because oldSku is null. You must provide a valid oldSku in order to use a proration mode.",
@@ -277,10 +282,12 @@ class MethodCallHandlerImpl
                 BillingFlowParams.SubscriptionUpdateParams.newBuilder();
 
         if (oldSku != null && !oldSku.isEmpty() && purchaseToken != null) {
-            subscriptionUpdateParamsBuilder.setOldSkuPurchaseToken(purchaseToken);
+//            subscriptionUpdateParamsBuilder.setOldSkuPurchaseToken(purchaseToken);
+            subscriptionUpdateParamsBuilder.setOldPurchaseToken(purchaseToken);
             // The proration mode value has to match one of the following declared in
             // https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.ProrationMode
-            subscriptionUpdateParamsBuilder.setReplaceSkusProrationMode(prorationMode);
+//            subscriptionUpdateParamsBuilder.setReplaceSkusProrationMode(prorationMode);
+            subscriptionUpdateParamsBuilder.setSubscriptionReplacementMode(prorationMode);
 
             paramsBuilder.setSubscriptionUpdateParams(subscriptionUpdateParamsBuilder.build());
 //      paramsBuilder.setOldSku(oldSku, purchaseToken);
